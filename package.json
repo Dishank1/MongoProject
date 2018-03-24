@@ -1,12 +1,12 @@
 {
-  "name": "project",
+  "name": "moviefinder",
   "version": "1.0.0",
-  "description": "",
+  "description": "Web application incorporating the MEAN Stack. This application will allow users to search for films and they will receive a list of films as a result for a valid search. Information about these films will also be presented. The information on these films come from the IMDB datasets.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Dishank Jhaveri, Salman Mustafa, Matthew Turczmanovicz",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
