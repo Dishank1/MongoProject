@@ -1,4 +1,4 @@
-//attributes
+//Attributes
 const express = require('express');
 const path = require('path');
 var MongoClient = require('mongodb').MongoClient;
@@ -12,25 +12,17 @@ MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     dbo = db.db("MovieDatabase");
     app.listen(port, () => {
-        console.log("Listening on " + port);
+        console.log("All systems a go on port: " + port);
     });
 });
 
 //Search function
 app.get("/search/:title", (req, res) => {
     var title = req.params.title; //Get the title being searched for
-    dbo.collection("titleBasics").findOne({"primaryTitle": title }, function(err, result) {
+    var selector = {"primaryTitle": {$regex: ".*"+title+".", $options:"i"}};
+    dbo.collection("titleBasics").find(selector).limit(20).sort({"startYear": -1}).toArray(function(err, result) {
         if (err) throw err;
         res.send(result);
         console.log(result);
     });
 });
-
-//app.get('/', (req, res) => res.sendFile(path.join(__dirname + '/index.html')));
-
-
-//   dbo.collection("titleAKA").findOne({}, function(err, result) {
-//     if (err) throw err;
-//     console.log(result);
-//     db.close();
-//   });
