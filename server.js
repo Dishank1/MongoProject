@@ -17,6 +17,15 @@ MongoClient.connect(url, function(err, db) {
     });
 });//end connect
 
+//static files
+app.use(express.static(__dirname + '/'));
+ 
+
+//CSS router
+app.get('/index.css', function(req, res){ 
+    res.send('/index.css'); res.end(); 
+    }); //end router 
+
 //Search function
 app.get("/search/:title", (req, res) => {
     var title = req.params.title; //Get the title being searched for
@@ -30,7 +39,8 @@ app.get("/search/:title", (req, res) => {
 
 //Home
 app.get('*', function(req, res) {
-        res.sendfile('./index.html'); // load the single view file (angular will handle the page changes on the front-end)
+        res.sendfile('./index.html');
     });//end home
+
 
 
