@@ -1,3 +1,4 @@
+console.log('Server running at http://127.0.0.1:8124/');
 //Attributes
 const express = require('express');
 const path = require('path');
@@ -14,7 +15,7 @@ MongoClient.connect(url, function(err, db) {
     app.listen(port, () => {
         console.log("All systems a go on port: " + port);
     });
-});
+});//end connect
 
 //Search function
 app.get("/search/:title", (req, res) => {
@@ -25,4 +26,11 @@ app.get("/search/:title", (req, res) => {
         res.send(result);
         console.log(result);
     });
-});
+});//end search
+
+//Home
+app.get('*', function(req, res) {
+        res.sendfile('./index.html'); // load the single view file (angular will handle the page changes on the front-end)
+    });//end home
+
+
