@@ -100,7 +100,7 @@ function basicDataLoaded(result) {
             }
             
             //Add all of the basic information for this movie to a sting
-            var singleMovieString = "<div id='"+movieID+"'><button onclick='getDetailedMovieData(this)' id='"+movieID+"'>" + movieTitle + " | " + movieYear + "</button></div><br />";
+            var singleMovieString = "<div id='"+movieID+"'><button onclick='callAPIDetailedData(this)' id='"+movieID+"'>" + movieTitle + " | " + movieYear + "</button></div><br />";
             
             //Add this specific title to the complete string
             moviesString += singleMovieString;
@@ -112,40 +112,94 @@ function basicDataLoaded(result) {
     }
 }
 
-function getDetailedMovieData(movie) {
-    var cleanedMovieID = movie.id.trim();
+//Call our API and hopefully get data
+function callAPIDetailedData(searchedMovie) {
+    var cleanedMovieID = searchedMovie.id.trim();
     cleanedMovieID = encodeURI(cleanedMovieID);
     
-    var url = "/detailedSearch/"+cleanedMovieID;
+    var detailedDataURL = "http://localhost:8000/detailedSearch/" + cleanedMovieID;
+    console.log(detailedDataURL);
     
-    callAPIDetailedData(url);
-}
-
-//Call our API and hopefully get data - detailed movie data
-function callAPIDetailedData(searchedValue) {
-    var completeURL = "http://localhost:8000" + searchedValue;
-    console.log(completeURL);
+    var ratingsDataURL = "http://localhost:8000/ratingsSearch/" + cleanedMovieID;
+    console.log(ratingsDataURL);
+    
+    var crewDataURL = "http://localhost:8000/crewSearch/" + cleanedMovieID;
+    console.log(crewDataURL);
+    
+    var principalDataURL = "http://localhost:8000/principalSearch/" + cleanedMovieID;
+    console.log(principalDataURL);
     
     //Call the API
+    //Detailed Data
     $.ajax({
         type: 'GET',
         data: null,
         dataType: 'json',
-        url: completeURL,
+        url: detailedDataURL,
         success: detailedDataLoaded,     
+    });
+    //Ratings Data
+    $.ajax({
+        type: 'GET',
+        data: null,
+        dataType: 'json',
+        url: ratingsDataURL,
+        success: ratingsDataLoaded,     
+    });
+    //Crew Data
+    $.ajax({
+        type: 'GET',
+        data: null,
+        dataType: 'json',
+        url: crewDataURL,
+        success: crewDataLoaded,     
+    });
+    //Principals Data
+    $.ajax({
+        type: 'GET',
+        data: null,
+        dataType: 'json',
+        url: principalDataURL,
+        success: principalDataLoaded,     
     });
 }
 
 function detailedDataLoaded(result) {
     console.log("Detailed Data Loaded");
-    var dynamicContent = document.getElementById("dynamicContent");
     titleBasicsData = result;
     console.log(titleBasicsData);
+    createDetailedContent();
+}
+
+function ratingsDataLoaded(result) {
+    console.log("Ratings Data Loaded");
+    titleRatingsData = result;
+    console.log(titleRatingsData);
+    createDetailedContent();
+}
+
+function crewDataLoaded(result) {
+    console.log("Crew Data Loaded");
+    titleCrewData = result;
+    console.log(titleCrewData);
+    createDetailedContent();
+}
+
+function principalDataLoaded(result) {
+    console.log("Principal Data Loaded");
+    titlePrincipalsData = result;
+    console.log(titlePrincipalsData);
+    createDetailedContent();
+}
+
+function createDetailedContent() {
     
+    //Movie Data
     //Error handling
     if (titleBasicsData == null || titleBasicsData.length < 1) {
         dynamicContent.innerHTML = "<h4>No Results Found</h4>";
     }
+    
     //Valid data retrieved
     else if (titleBasicsData != null && titleBasicsData.length > 0) {
         //Variables
@@ -157,6 +211,12 @@ function detailedDataLoaded(result) {
         var movieRuntime;
         var movieSynopsis;
         var movieSynopsisAuthor;
+        var movieRating;
+        var movieRatingVotes;
+        var movieDirector;
+        var movieWriter;
+        var moviePrincipalRole;
+        var moviePrincipalName;
         var moviesString;
         var movieID;
         
@@ -206,7 +266,7 @@ function detailedDataLoaded(result) {
             
             //Film Synposis
             if (!allMovies[i].synopsis) {
-                movieSynposis = "Film Synposis Not Available";
+                movieSynopsis = "Film Synposis Not Available";
             }
             else {
                 movieSynopsis = allMovies[i].synopsis;
@@ -214,7 +274,7 @@ function detailedDataLoaded(result) {
             
             //Film Synposis Author
             if (!allMovies[i].synopsisAuthor) {
-                movieSynposisAuthor = "Author Not Available";
+                movieSynopsisAuthor = "Author Not Available";
             }
             else {
                 movieSynopsisAuthor = allMovies[i].synopsisAuthor;
@@ -229,15 +289,77 @@ function detailedDataLoaded(result) {
             }
             
             //Add all of the basic information for this movie to a sting
-            var singleMovieString = "<div id='"+movieTitle+"'><h4>" + movieTitle + "</h4><p>Original Title: " + movieOriginalTitle + "</p><p>Release Year: " + movieYear + "</p><p>Genre(s): " + movieGenres + "</p><p>Runtime: " + movieRuntime + " minutes</p><p>Synopsis: " + movieSynopsis + " - " + movieSynopsisAuthor + "</p></div><br />";
+            var detailedMovieString = "<div id='"+movieTitle+"'><h4>" + movieTitle + "</h4><p>Original Title: " + movieOriginalTitle + "</p><p>Release Year: " + movieYear + "</p><p>Genre(s): " + movieGenres + "</p><p>Runtime: " + movieRuntime + " minutes</p><p>Synopsis: " + movieSynopsis + " - " + movieSynopsisAuthor + "</p>";
+            
+            //Ratings Data
+            if (titleRatingsData != null && titleRatingsData.length > 0) {
+
+                if (!titleRatingsData[0].averageRating) {
+                    movieRating = "Rating Not Available";
+                } 
+                else {
+                    movieRating = titleRatingsData[0].averageRating;
+                }
+                if (!titleRatingsData[0].numVotes) {
+                    movieRatingVotes = "Votes on Rating Not Available";
+                } 
+                else {
+                    movieRatingVotes = titleRatingsData[0].numVotes;
+                }
+                
+                detailedMovieString += "<p>Rating: " + movieRating + "/10 - " + movieRatingVotes + " votes.</p>";
+            }
+            
+            //Crew Data
+            if (titleCrewData != null && titleCrewData.length > 0) {
+                if (!titleCrewData[0].directors) {
+                    movieDirector = "Director(s) Not Available";
+                }   
+                else {
+                    movieDirector = titleCrewData[0].directors;
+                }
+                if (!titleCrewData[0].writers) {
+                    movieWriter = "Writers(s) Not Available"
+                }
+                else {
+                    movieWriter = titleCrewData[0].writers;
+                }
+                
+                detailedMovieString += "<p>Director(s): " + movieDirector + "</p><p>Writer(s): " + movieWriter + "</p></div>";
+            }
+            
+            var singlePrincipalsString = "<div>";
+            
+            //Not Working Too Well
+//            //Principals Data
+//            if (titlePrincipalsData != null && titlePrincipalsData.length > 0) {
+//                for (var j = 0; j < titlePrincipalsData.length; j++) {
+//                    if (!titlePrincipalsData[i].category) {
+//                        moviePrincipalRole = "Role Unknown";
+//                    }
+//                    else {
+//                        moviePrincipalRole = titlePrincipalsData[i].category;
+//                    }
+//                    if (!titlePrincipalsData[i].nconst) {
+//                        moviePrincipalName = "Unknown";
+//                    }
+//                    else {
+//                        moviePrincipalName = titlePrincipalsData[i].nconst;
+//                    }
+//                    
+//                    singlePrincipalsString += "<p>" + moviePrincipalRole + " - " + moviePrincipalName + "</p>";
+//                }
+//                
+//                singlePrincipalsString += "</div>";
+//                detailedMovieString += singlePrincipalsString;
+//            }
             
             //Add this specific title to the complete string
-            moviesString += singleMovieString;
+            moviesString += detailedMovieString;
         }
         
         //Display results
         moviesString += "</div>";
         dynamicContent.innerHTML = moviesString;
     }
-    
 }

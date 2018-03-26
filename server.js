@@ -25,7 +25,7 @@ app.get('/index.css', function(req, res){
     res.send('/index.css'); res.end(); 
     }); //end router 
 
-//Search function
+//Basic retrieval function
 app.get("/search/:title", (req, res) => {
     var title = req.params.title; //Get the title being searched for
     
@@ -40,7 +40,7 @@ app.get("/search/:title", (req, res) => {
     });
 });//end search
 
-//Detailed search function
+//Detailed retrieval function
 app.get("/detailedSearch/:id", (req, res) => {
     var movieID = req.params.id; //Get the title being searched for
     
@@ -57,8 +57,68 @@ app.get("/detailedSearch/:id", (req, res) => {
 
 //Poster retrieval function
 app.get("/images/:id", (req, res) => {
+    //To Do
+});
 
+//Ratings retrieval function
+app.get("/ratingsSearch/:id", (req, res) => {
+    var movieID = req.params.id;
     
+    //Create query
+    var query = {"tconst": movieID};
+    
+    //MongoDB query call
+    dbo.collection("titleRatings").find(query).limit(1).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result);
+    });
+    
+});
+
+//Crew retrival function
+app.get("/crewSearch/:id", (req, res) => {
+    var movieID = req.params.id;
+    
+    //Create query
+    var query = {"tconst": movieID};
+    
+    //MongoDB query call
+    dbo.collection("titleCrew").find(query).limit(1).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result);
+    }); 
+});
+
+//Principal retrival function
+app.get("/principalSearch/:id", (req, res) => {
+    var movieID = req.params.id;
+    
+    //Create query
+    var query = {"tconst": movieID};
+    
+    //MongoDB query call
+    dbo.collection("titlePrincipals").find(query).limit(20).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result);
+    });
+});
+
+//Name search
+app.get("/nameSearch/:id", (req, res) => {
+    var personID = req.params.id;
+    
+    //Create query
+    var query = {"nconst": personID};
+    
+    //MongoDB query call
+    dbo.collection("nameBasics").find(query).limit(1).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result);
+    }); 
 });
 
 ////Home
