@@ -25,6 +25,11 @@ app.get('/index.css', function(req, res){
     res.send('/index.css'); res.end(); 
     }); //end router 
 
+//CORS
+var cors = require('cors')
+
+app.use(cors())
+
 //Basic retrieval function
 app.get("/search/:title", (req, res) => {
     var title = req.params.title; //Get the title being searched for

@@ -12,7 +12,9 @@ window.onload = init;
 
 //Initialize Function
 function init() {
+    document.getElementById("logoDiv").addEventListener('click',function(){location.href = 'http://127.0.0.1:8000/index.html'},false);
     document.getElementById("searchButton").onclick = searchMovies;
+
 }
 
 //When the user searches for movie titles, we will call our API and retrieve data on the movie they searched for
@@ -362,4 +364,5 @@ function createDetailedContent() {
         moviesString += "</div>";
         dynamicContent.innerHTML = moviesString;
     }
+
 }
