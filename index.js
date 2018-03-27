@@ -6,6 +6,7 @@ var titleRatingsData;
 var titlePrincipalsData;
 var titleCrewData;
 var nameBasicsData;
+var userRatingsData;
 
 //Initialize once the page loads
 window.onload = init;
@@ -130,6 +131,9 @@ function callAPIDetailedData(searchedMovie) {
     
     var principalDataURL = "http://localhost:8000/principalSearch/" + cleanedMovieID;
     console.log(principalDataURL);
+
+    var userRatingsDataURL = "http://localhost:8000/userRatings/" + cleanedMovieID;
+    console.log(userRatingsDataURL);
     
     //Call the API
     //Detailed Data
@@ -164,6 +168,14 @@ function callAPIDetailedData(searchedMovie) {
         url: principalDataURL,
         success: principalDataLoaded,     
     });
+    //User ratings Data
+    $.ajax({
+        type: 'GET',
+        data: null,
+        dataType: 'json',
+        url: userRatingsDataURL,
+        success: userRatingsDataLoaded,     
+    });
 }
 
 function detailedDataLoaded(result) {
@@ -194,6 +206,13 @@ function principalDataLoaded(result) {
     createDetailedContent();
 }
 
+function userRatingsDataLoaded(result) {
+    console.log("User Ratings Data Loaded");
+    userRatingsData = result;
+    console.log(userRatingsData);
+    createDetailedContent();
+}
+
 function createDetailedContent() {
     
     //Movie Data
@@ -206,6 +225,7 @@ function createDetailedContent() {
     else if (titleBasicsData != null && titleBasicsData.length > 0) {
         //Variables
         var allMovies = titleBasicsData;
+        var allUserRatings = userRatingsData;
         var movieTitle;
         var movieOriginalTitle;
         var movieYear
@@ -221,6 +241,8 @@ function createDetailedContent() {
         var moviePrincipalName;
         var moviesString;
         var movieID;
+        var movieRatingComments;
+        var userRatingName;
         
         moviesString = "<div id='movies'>";
         
@@ -356,10 +378,39 @@ function createDetailedContent() {
 //                detailedMovieString += singlePrincipalsString;
 //            }
             
+            
+            
+
+            //User Ratings Data
+            if (userRatingsData != null && userRatingsData.length > 0) {
+                for(var x = 0; x < allUserRatings.length; x++) {
+
+                    if (!allUserRatings[x].stars) {
+                        movieRating = "Rating Not Available";
+                    } 
+                    else {
+                        movieRating = userRatingsData[x].stars;
+                    }
+                    if (!allUserRatings[x].comment) {
+                        movieRatingComments = "Comments on Movie Not Available";
+                    } 
+                    else {
+                        movieRatingComments = userRatingsData[x].comment;
+                    }
+                    if (!allUserRatings[x].name) {
+                        userRatingName = "User name Not Available";
+                    } 
+                    else {
+                        userRatingName = allUserRatings[x].name;
+                    }
+                    
+                    detailedMovieString += "<div class = 'eachUserRating'><p>User Name: " + userRatingName + "</p><p>User Rating: " + movieRating + "/5 " + "</p><p>User Comment: " + movieRatingComments + " </p></div>";
+                }
+        }
+
             //Add this specific title to the complete string
             moviesString += detailedMovieString;
         }
-        
         //Display results
         moviesString += "</div>";
         dynamicContent.innerHTML = moviesString;

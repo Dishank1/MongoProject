@@ -29,6 +29,18 @@ body {
     color: #E3E3E3;
 }
 
+#userRating {
+    padding: 2%;
+    margin: 2%;
+    color: #E3E3E3;
+}
+
+.eachUserRating{
+    background-color: #424242;
+    padding: 2%;
+    margin: 2%;
+}
+
 footer {
     text-align: center;
     padding: 2%;

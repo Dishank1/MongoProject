@@ -126,10 +126,20 @@ app.get("/nameSearch/:id", (req, res) => {
     }); 
 });
 
-////Home
-//app.get('*', function(req, res) {
-//        res.sendfile('./index.html');
-//    });//end home
-
+//User Ratings function
+app.get("/userRatings/:id", (req, res) => {
+    var movieID = req.params.id;
+    
+    //Create query
+    var query = {"tconst": movieID};
+    
+    //MongoDB query call
+    dbo.collection("userRatings").find(query).toArray(function(err, result) {
+        if (err) throw err;
+        res.send(result);
+        console.log(result);
+    });
+    
+});
 
 
