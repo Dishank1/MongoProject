@@ -378,7 +378,8 @@ function createDetailedContent() {
 //                detailedMovieString += singlePrincipalsString;
 //            }
             
-            
+            //User Ratings input
+            detailedMovieString += '<div class = "eachUserRating"><form action="/ratings" method="POST">Name:<br><input name="name" type="text" style="width: 20%"/><br>Rating:<br><input type="radio" name="stars" value="1"><input type="radio" name="stars" value="2"><input type="radio" name="stars" value="3"><input type="radio" name="stars" value="4"><input type="radio" name="stars" value="5"><br>Comments:<br><textarea name="comment" >Enter comment here...</textarea><br><button type="submit">Submit</button></form>'
             
 
             //User Ratings Data

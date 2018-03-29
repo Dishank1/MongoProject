@@ -1,5 +1,6 @@
 //Attributes
 const express = require('express');
+const bodyParser = require('body-parser');
 const path = require('path');
 var MongoClient = require('mongodb').MongoClient;
 var gfs = require('fs');
@@ -7,6 +8,8 @@ var url = "mongodb://localhost:27017/MovieDatabase";
 const app  = express();
 var port = 8000;
 var dbo;
+
+app.use(bodyParser.urlencoded({extended: true}));
 
 //Connect to MongoDB and start the server
 MongoClient.connect(url, function(err, db) {
@@ -140,6 +143,18 @@ app.get("/userRatings/:id", (req, res) => {
         console.log(result);
     });
     
+});
+
+//User ratings post
+app.post("/userRatings/", (req, res) => {
+
+    //dbo.collection("userRatings").save(req.body,(err,result) => {
+        //if (err) return console.log(err)
+
+        //console.log("saved to DB")
+        //res.redirect("/");    
+    //})
+    console.log(req.body);    
 });
 
 
