@@ -1,3 +1,11 @@
+/*
+	Dishank Jhaveri, Salman Mustafa, Matthew Turczmanovicz
+	Contemporary Databases
+	Professor Holden
+	April 1st, 2018
+	Mongo Project
+*/
+
 "use strict";
 
 //Global Variables
