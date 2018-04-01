@@ -15,6 +15,7 @@ var titlePrincipalsData;
 var titleCrewData;
 var nameBasicsData;
 var userRatingsData;
+var crewName;
 
 //Initialize once the page loads
 window.onload = init;
@@ -37,10 +38,10 @@ function searchMovies() {
     else {
         document.getElementById("dynamicContent").innerHTML = "<h4>Finding Films...</h4>";
         cleanedSearchValue = encodeURI(cleanedSearchValue);
-        
+
         //Create the URL we are going to call the API with
         var url = "/search/"+cleanedSearchValue;
-        
+
         //Call the API - function
         callAPIBasicData(url);
     }
@@ -50,14 +51,14 @@ function searchMovies() {
 function callAPIBasicData(searchedValue) {
     var completeURL = "http://localhost:8000" + searchedValue;
     console.log(completeURL);
-    
+
     //Call the API
     $.ajax({
         type: 'GET',
         data: null,
         dataType: 'json',
         url: completeURL,
-        success: basicDataLoaded,     
+        success: basicDataLoaded,
     });
 }
 
@@ -67,7 +68,7 @@ function basicDataLoaded(result) {
     var dynamicContent = document.getElementById("dynamicContent");
     titleBasicsData = result;
     console.log(titleBasicsData);
-    
+
     //Error handling
     if (titleBasicsData == null || titleBasicsData.length < 1) {
         dynamicContent.innerHTML = "<h4>No Results Found</h4>";
@@ -77,12 +78,12 @@ function basicDataLoaded(result) {
         //Variables
         var allMovies = titleBasicsData;
         var movieTitle;
-        var movieYear
+        var movieYear;
         var moviesString;
         var movieID;
-        
+
         moviesString = "<div id='movies'>";
-        
+
         for (var i = 0; i < allMovies.length; i++) {
 
             //Film Title
@@ -92,7 +93,7 @@ function basicDataLoaded(result) {
             else {
                 movieTitle = allMovies[i].primaryTitle;
             }
-            
+
              //Film Year
             if (!allMovies[i].startYear) {
                 movieYear = "Film Year Not Available";
@@ -100,7 +101,7 @@ function basicDataLoaded(result) {
             else {
                 movieYear = allMovies[i].startYear;
             }
-            
+
 
             //Film ID
             if (!allMovies[i].tconst) {
@@ -109,14 +110,14 @@ function basicDataLoaded(result) {
             else {
                 movieID = allMovies[i].tconst;
             }
-            
+
             //Add all of the basic information for this movie to a sting
             var singleMovieString = "<div id='"+movieID+"'><button onclick='callAPIDetailedData(this)' id='"+movieID+"'>" + movieTitle + " | " + movieYear + "</button></div><br />";
-            
+
             //Add this specific title to the complete string
             moviesString += singleMovieString;
         }
-        
+
         //Display results
         moviesString += "</div>";
         dynamicContent.innerHTML = moviesString;
@@ -127,22 +128,22 @@ function basicDataLoaded(result) {
 function callAPIDetailedData(searchedMovie) {
     var cleanedMovieID = searchedMovie.id.trim();
     cleanedMovieID = encodeURI(cleanedMovieID);
-    
+
     var detailedDataURL = "http://localhost:8000/detailedSearch/" + cleanedMovieID;
     console.log(detailedDataURL);
-    
+
     var ratingsDataURL = "http://localhost:8000/ratingsSearch/" + cleanedMovieID;
     console.log(ratingsDataURL);
-    
+
     var crewDataURL = "http://localhost:8000/crewSearch/" + cleanedMovieID;
     console.log(crewDataURL);
-    
+
     var principalDataURL = "http://localhost:8000/principalSearch/" + cleanedMovieID;
     console.log(principalDataURL);
 
     var userRatingsDataURL = "http://localhost:8000/userRatings/" + cleanedMovieID;
     console.log(userRatingsDataURL);
-    
+
     //Call the API
     //Detailed Data
     $.ajax({
@@ -150,7 +151,7 @@ function callAPIDetailedData(searchedMovie) {
         data: null,
         dataType: 'json',
         url: detailedDataURL,
-        success: detailedDataLoaded,     
+        success: detailedDataLoaded,
     });
     //Ratings Data
     $.ajax({
@@ -158,7 +159,7 @@ function callAPIDetailedData(searchedMovie) {
         data: null,
         dataType: 'json',
         url: ratingsDataURL,
-        success: ratingsDataLoaded,     
+        success: ratingsDataLoaded,
     });
     //Crew Data
     $.ajax({
@@ -166,7 +167,7 @@ function callAPIDetailedData(searchedMovie) {
         data: null,
         dataType: 'json',
         url: crewDataURL,
-        success: crewDataLoaded,     
+        success: crewDataLoaded,
     });
     //Principals Data
     $.ajax({
@@ -174,7 +175,7 @@ function callAPIDetailedData(searchedMovie) {
         data: null,
         dataType: 'json',
         url: principalDataURL,
-        success: principalDataLoaded,     
+        success: principalDataLoaded,
     });
     //User ratings Data
     $.ajax({
@@ -182,7 +183,7 @@ function callAPIDetailedData(searchedMovie) {
         data: null,
         dataType: 'json',
         url: userRatingsDataURL,
-        success: userRatingsDataLoaded,     
+        success: userRatingsDataLoaded,
     });
 }
 
@@ -203,11 +204,27 @@ function ratingsDataLoaded(result) {
 function crewDataLoaded(result) {
     console.log("Crew Data Loaded");
     titleCrewData = result;
+
     console.log(titleCrewData);
     createDetailedContent();
 }
 
-function principalDataLoaded(result) {
+function getName(nconst) {
+  var nameDataURL = "http://localhost:8000/nameSearch/" + nconst;
+  console.log(nameDataURL);
+      $.ajax({
+          type: 'GET',
+          data: null,
+          dataType: 'json',
+          url: nameDataURL,
+          success: function (result) {
+            console.log(" getting sent"+result[0].primaryName);
+            crewName =  result[0].primaryName;
+          },
+        });
+}
+
+  function principalDataLoaded(result) {
     console.log("Principal Data Loaded");
     titlePrincipalsData = result;
     console.log(titlePrincipalsData);
@@ -222,13 +239,13 @@ function userRatingsDataLoaded(result) {
 }
 
 function createDetailedContent() {
-    
+
     //Movie Data
     //Error handling
     if (titleBasicsData == null || titleBasicsData.length < 1) {
         dynamicContent.innerHTML = "<h4>No Results Found</h4>";
     }
-    
+
     //Valid data retrieved
     else if (titleBasicsData != null && titleBasicsData.length > 0) {
         //Variables
@@ -251,9 +268,9 @@ function createDetailedContent() {
         var movieID;
         var movieRatingComments;
         var userRatingName;
-        
+
         moviesString = "<div id='movies'>";
-        
+
         for (var i = 0; i < allMovies.length; i++) {
 
             //Film Title
@@ -263,7 +280,7 @@ function createDetailedContent() {
             else {
                 movieTitle = allMovies[i].primaryTitle;
             }
-            
+
             //Original Title
             if (!allMovies[i].originalTitle) {
                 movieOriginalTitle = "Original Film Title Not Available";
@@ -271,7 +288,7 @@ function createDetailedContent() {
             else {
                 movieOriginalTitle = allMovies[i].originalTitle;
             }
-            
+
             //Film Year
             if (!allMovies[i].startYear) {
                 movieYear = "Film Year Not Available";
@@ -279,7 +296,7 @@ function createDetailedContent() {
             else {
                 movieYear = allMovies[i].startYear;
             }
-            
+
             //Film Genres
             if (!allMovies[i].genres) {
                 movieGenres = "Film Genres Are Not Available";
@@ -287,7 +304,7 @@ function createDetailedContent() {
             else {
                 movieGenres = allMovies[i].genres;
             }
-            
+
             //Film Runtime
             if (!allMovies[i].runtimeMinutes) {
                 movieRuntime = "Film Runtime Not Available";
@@ -295,7 +312,7 @@ function createDetailedContent() {
             else {
                 movieRuntime = allMovies[i].runtimeMinutes;
             }
-            
+
             //Film Synposis
             if (!allMovies[i].synopsis) {
                 movieSynopsis = "Film Synposis Not Available";
@@ -303,7 +320,7 @@ function createDetailedContent() {
             else {
                 movieSynopsis = allMovies[i].synopsis;
             }
-            
+
             //Film Synposis Author
             if (!allMovies[i].synopsisAuthor) {
                 movieSynopsisAuthor = "Author Not Available";
@@ -311,7 +328,7 @@ function createDetailedContent() {
             else {
                 movieSynopsisAuthor = allMovies[i].synopsisAuthor;
             }
-            
+
             //Film ID
             if (!allMovies[i].tconst) {
                 movieID = null;
@@ -319,49 +336,60 @@ function createDetailedContent() {
             else {
                 movieID = allMovies[i].tconst;
             }
-            
+
             //Add all of the basic information for this movie to a sting
             var detailedMovieString = "<div id='"+movieTitle+"'><h4>" + movieTitle + "</h4><p>Original Title: " + movieOriginalTitle + "</p><p>Release Year: " + movieYear + "</p><p>Genre(s): " + movieGenres + "</p><p>Runtime: " + movieRuntime + " minutes</p><p>Synopsis: " + movieSynopsis + " - " + movieSynopsisAuthor + "</p>";
-            
+
             //Ratings Data
             if (titleRatingsData != null && titleRatingsData.length > 0) {
 
                 if (!titleRatingsData[0].averageRating) {
                     movieRating = "Rating Not Available";
-                } 
+                }
                 else {
                     movieRating = titleRatingsData[0].averageRating;
                 }
                 if (!titleRatingsData[0].numVotes) {
                     movieRatingVotes = "Votes on Rating Not Available";
-                } 
+                }
                 else {
                     movieRatingVotes = titleRatingsData[0].numVotes;
                 }
-                
+
                 detailedMovieString += "<p>Rating: " + movieRating + "/10 - " + movieRatingVotes + " votes.</p>";
             }
-            
+
             //Crew Data
             if (titleCrewData != null && titleCrewData.length > 0) {
                 if (!titleCrewData[0].directors) {
                     movieDirector = "Director(s) Not Available";
-                }   
-                else {
-                    movieDirector = titleCrewData[0].directors;
+                }
+                 else {
+                movieDirector =  getName(titleCrewData[0].directors);
+               console.log(movieDirector);
+                  //  movieDirector = titleCrewData[0].directors;
                 }
                 if (!titleCrewData[0].writers) {
-                    movieWriter = "Writers(s) Not Available"
+                    movieWriter = "Writers(s) Not Available";
+                    console.log("no writer")
                 }
                 else {
-                    movieWriter = titleCrewData[0].writers;
+                   var writerArray  = titleCrewData[0].writers.split(",");
+                   console.log("length "+writerArray.length);
+                  // console.log(writerArray);
+                   for (i = 0; i <writerArray.length; i++) {
+                     console.log("writers "+ writerArray[i]);
+                     movieWriter += getName(writerArray[i]);
+                    console.log(movieWriter);
+                  }
+                    // movieWriter = titleCrewData[0].writers;
                 }
-                
+
                 detailedMovieString += "<p>Director(s): " + movieDirector + "</p><p>Writer(s): " + movieWriter + "</p></div>";
-            }
-            
-            var singlePrincipalsString = "<div>";
-            
+
+
+            //var singlePrincipalsString = "<div>";
+
             //Not Working Too Well
 //            //Principals Data
 //            if (titlePrincipalsData != null && titlePrincipalsData.length > 0) {
@@ -378,17 +406,17 @@ function createDetailedContent() {
 //                    else {
 //                        moviePrincipalName = titlePrincipalsData[i].nconst;
 //                    }
-//                    
+//
 //                    singlePrincipalsString += "<p>" + moviePrincipalRole + " - " + moviePrincipalName + "</p>";
 //                }
-//                
+//
 //                singlePrincipalsString += "</div>";
 //                detailedMovieString += singlePrincipalsString;
 //            }
-            
+
             //User Ratings input
-            detailedMovieString += '<div class = "eachUserRating"><form action="/userRatings" method="POST">Name:<br><input type="hidden" name="tconst" value=' + movieID + '><input name="name" type="text" style="width: 20%"/><br>Rating:<br><input type="radio" name="stars" value="1"><input type="radio" name="stars" value="2"><input type="radio" name="stars" value="3"><input type="radio" name="stars" value="4"><input type="radio" name="stars" value="5"><br>Comments:<br><textarea name="comment" >Enter comment here...</textarea><br><button type="submit">Submit</button></form>'
-            
+            detailedMovieString += '<div class = "eachUserRating"><form action="/userRatings" method="POST">Name:<br><input type="hidden" name="tconst" value=' + movieID + '><input name="name" type="text" style="width: 20%"/><br>Rating:<br><input type="radio" name="stars" value="1"><input type="radio" name="stars" value="2"><input type="radio" name="stars" value="3"><input type="radio" name="stars" value="4"><input type="radio" name="stars" value="5"><br>Comments:<br><textarea name="comment" >Enter comment here...</textarea><br><button type="submit">Submit</button></form>';
+
 
             //User Ratings Data
             if (userRatingsData != null && userRatingsData.length > 0) {
@@ -396,23 +424,23 @@ function createDetailedContent() {
 
                     if (!allUserRatings[x].stars) {
                         movieRating = "Rating Not Available";
-                    } 
+                    }
                     else {
                         movieRating = userRatingsData[x].stars;
                     }
                     if (!allUserRatings[x].comment) {
                         movieRatingComments = "Comments on Movie Not Available";
-                    } 
+                    }
                     else {
                         movieRatingComments = userRatingsData[x].comment;
                     }
                     if (!allUserRatings[x].name) {
                         userRatingName = "User name Not Available";
-                    } 
+                    }
                     else {
                         userRatingName = allUserRatings[x].name;
                     }
-                    
+
                     detailedMovieString += "<div class = 'eachUserRating'><p>User Name: " + userRatingName + "</p><p>User Rating: " + movieRating + "/5 " + "</p><p>User Comment: " + movieRatingComments + " </p></div>";
                 }
         }
@@ -424,5 +452,6 @@ function createDetailedContent() {
         moviesString += "</div>";
         dynamicContent.innerHTML = moviesString;
     }
+  }
 
 }

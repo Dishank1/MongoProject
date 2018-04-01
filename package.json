@@ -12,6 +12,7 @@
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.3",
+    "gridfs-stream": "^1.1.1",
     "mongodb": "^3.0.5",
     "mongoose": "^5.0.11",
     "node": "^9.9.0"
