@@ -15,7 +15,10 @@ var titlePrincipalsData;
 var titleCrewData;
 var nameBasicsData;
 var userRatingsData;
-var crewName;
+var allDirectors;
+var allWriters;
+var writerList = "";
+var directorList= "";
 
 //Initialize once the page loads
 window.onload = init;
@@ -128,77 +131,100 @@ function basicDataLoaded(result) {
 function callAPIDetailedData(searchedMovie) {
     var cleanedMovieID = searchedMovie.id.trim();
     cleanedMovieID = encodeURI(cleanedMovieID);
+    directorList = "";
+    writerList = "";
+    getDetailsData(cleanedMovieID)
+    .then(getRatingsData.bind(null,cleanedMovieID))
+    .then(getCrewData.bind(null,cleanedMovieID))
+    .then(getUserRatingsData.bind(null,cleanedMovieID))
+    .then(function(){
+        var writerArray  = titleCrewData[0].writers.split(",");
 
-    var detailedDataURL = "http://localhost:8000/detailedSearch/" + cleanedMovieID;
-    console.log(detailedDataURL);
+        return writerArray.map((writer) => getName(writer));
+    })
+    .then(function(){
+        var directorArray  = titleCrewData[0].directors.split(",");
+         return directorArray.map((director) => getName(director,true));
+    })
+    .then(function(data){
+      allDirectors = data;
+    })
+    .then(function(){
+      //global object detailedData has all updated values
+      //update UI
+      setTimeout(function(){
 
-    var ratingsDataURL = "http://localhost:8000/ratingsSearch/" + cleanedMovieID;
-    console.log(ratingsDataURL);
+          createDetailedContent();
+        console.log("calledMe ");
 
-    var crewDataURL = "http://localhost:8000/crewSearch/" + cleanedMovieID;
-    console.log(crewDataURL);
+ }, 2000);
 
-    var principalDataURL = "http://localhost:8000/principalSearch/" + cleanedMovieID;
-    console.log(principalDataURL);
+    })
 
-    var userRatingsDataURL = "http://localhost:8000/userRatings/" + cleanedMovieID;
-    console.log(userRatingsDataURL);
+}
 
-    //Call the API
-    //Detailed Data
-    $.ajax({
-        type: 'GET',
-        data: null,
-        dataType: 'json',
-        url: detailedDataURL,
-        success: detailedDataLoaded,
-    });
-    //Ratings Data
-    $.ajax({
-        type: 'GET',
-        data: null,
-        dataType: 'json',
-        url: ratingsDataURL,
-        success: ratingsDataLoaded,
-    });
-    //Crew Data
-    $.ajax({
-        type: 'GET',
-        data: null,
-        dataType: 'json',
-        url: crewDataURL,
-        success: crewDataLoaded,
-    });
-    //Principals Data
-    $.ajax({
-        type: 'GET',
-        data: null,
-        dataType: 'json',
-        url: principalDataURL,
-        success: principalDataLoaded,
-    });
-    //User ratings Data
-    $.ajax({
-        type: 'GET',
-        data: null,
-        dataType: 'json',
-        url: userRatingsDataURL,
-        success: userRatingsDataLoaded,
-    });
+function getCrewData(cleanedMovieID) {
+  var crewDataURL = "http://localhost:8000/crewSearch/" + cleanedMovieID;
+
+return  $.ajax({
+      type: 'GET',
+      data: null,
+      dataType: 'json',
+      url: crewDataURL,
+      success: crewDataLoaded,
+  });
+}
+
+function getRatingsData(cleanedMovieID) {
+
+  var ratingsDataURL = "http://localhost:8000/ratingsSearch/" + cleanedMovieID;
+  console.log(ratingsDataURL);
+
+  return $.ajax({
+      type: 'GET',
+      data: null,
+      dataType: 'json',
+      url: ratingsDataURL,
+      success: ratingsDataLoaded,
+  });
+}
+
+function getDetailsData(cleanedMovieID){
+  var detailedDataURL = "http://localhost:8000/detailedSearch/" + cleanedMovieID;
+  console.log(detailedDataURL);
+
+  return $.ajax({
+      type: 'GET',
+      data: null,
+      dataType: 'json',
+      url: detailedDataURL,
+      success: detailedDataLoaded,
+  });
+}
+
+function getUserRatingsData(cleanedMovieID){
+  var userRatingsDataURL = "http://localhost:8000/userRatings/" + cleanedMovieID;
+  console.log(userRatingsDataURL);
+
+  return $.ajax({
+      type: 'GET',
+      data: null,
+      dataType: 'json',
+      url: userRatingsDataURL,
+      success: userRatingsDataLoaded,
+  });
 }
 
 function detailedDataLoaded(result) {
     console.log("Detailed Data Loaded");
     titleBasicsData = result;
     console.log(titleBasicsData);
-    createDetailedContent();
 }
 
 function ratingsDataLoaded(result) {
     console.log("Ratings Data Loaded");
     titleRatingsData = result;
     console.log(titleRatingsData);
-    createDetailedContent();
 }
 
 function crewDataLoaded(result) {
@@ -206,30 +232,35 @@ function crewDataLoaded(result) {
     titleCrewData = result;
 
     console.log(titleCrewData);
-    createDetailedContent();
 }
 
-function getName(nconst) {
+function getName(nconst,isDirector) {
   var nameDataURL = "http://localhost:8000/nameSearch/" + nconst;
   console.log(nameDataURL);
-      $.ajax({
+return   $.ajax({
           type: 'GET',
           data: null,
           dataType: 'json',
           url: nameDataURL,
           success: function (result) {
-            console.log(" getting sent"+result[0].primaryName);
-            crewName =  result[0].primaryName;
+            if(isDirector){
+              if(result[0].primaryName !="undefined"){
+                directorList += " " +result[0].primaryName;
+            }else{
+              directorList = " "
+            }
+            }else{
+              if(result[0].primaryName !="undefined"){
+            writerList += " "+ result[0].primaryName;
+          }else{
+            writerList = " "
+          }
+            }
+
           },
         });
 }
 
-  function principalDataLoaded(result) {
-    console.log("Principal Data Loaded");
-    titlePrincipalsData = result;
-    console.log(titlePrincipalsData);
-    createDetailedContent();
-}
 
 function userRatingsDataLoaded(result) {
     console.log("User Ratings Data Loaded");
@@ -365,8 +396,10 @@ function createDetailedContent() {
                     movieDirector = "Director(s) Not Available";
                 }
                  else {
-                movieDirector =  getName(titleCrewData[0].directors);
-               console.log(movieDirector);
+
+
+                movieDirector = allDirectors;
+
                   //  movieDirector = titleCrewData[0].directors;
                 }
                 if (!titleCrewData[0].writers) {
@@ -374,45 +407,15 @@ function createDetailedContent() {
                     console.log("no writer")
                 }
                 else {
-                   var writerArray  = titleCrewData[0].writers.split(",");
-                   console.log("length "+writerArray.length);
-                  // console.log(writerArray);
-                   for (i = 0; i <writerArray.length; i++) {
-                     console.log("writers "+ writerArray[i]);
-                     movieWriter += getName(writerArray[i]);
-                    console.log(movieWriter);
-                  }
-                    // movieWriter = titleCrewData[0].writers;
+                  console.log("allWRITTERS" + allWriters);
+
+
+
+                     movieWriter = allWriters;
                 }
 
-                detailedMovieString += "<p>Director(s): " + movieDirector + "</p><p>Writer(s): " + movieWriter + "</p></div>";
+                detailedMovieString += "<p>Director(s): " + directorList + "</p><p>Writer(s): " + writerList + "</p></div>";
 
-
-            //var singlePrincipalsString = "<div>";
-
-            //Not Working Too Well
-//            //Principals Data
-//            if (titlePrincipalsData != null && titlePrincipalsData.length > 0) {
-//                for (var j = 0; j < titlePrincipalsData.length; j++) {
-//                    if (!titlePrincipalsData[i].category) {
-//                        moviePrincipalRole = "Role Unknown";
-//                    }
-//                    else {
-//                        moviePrincipalRole = titlePrincipalsData[i].category;
-//                    }
-//                    if (!titlePrincipalsData[i].nconst) {
-//                        moviePrincipalName = "Unknown";
-//                    }
-//                    else {
-//                        moviePrincipalName = titlePrincipalsData[i].nconst;
-//                    }
-//
-//                    singlePrincipalsString += "<p>" + moviePrincipalRole + " - " + moviePrincipalName + "</p>";
-//                }
-//
-//                singlePrincipalsString += "</div>";
-//                detailedMovieString += singlePrincipalsString;
-//            }
 
             //User Ratings input
             detailedMovieString += '<div class = "eachUserRating"><form action="/userRatings" method="POST">Name:<br><input type="hidden" name="tconst" value=' + movieID + '><input name="name" type="text" style="width: 20%"/><br>Rating:<br><input type="radio" name="stars" value="1"><input type="radio" name="stars" value="2"><input type="radio" name="stars" value="3"><input type="radio" name="stars" value="4"><input type="radio" name="stars" value="5"><br>Comments:<br><textarea name="comment" >Enter comment here...</textarea><br><button type="submit">Submit</button></form>';
